@@ -2,15 +2,14 @@
 class CreditCard
 {
     public function __construct(
-        private DateTimeProviderInterface $dateTimeProvider,
         private string $expirationDate,
         )
     {
     }
 
-    public function isExpired(): bool
+    public function isExpired(\DateTime $today): bool
     {
-        return $this->dateTimeProvider->getLastMomentOfTheMonth($this->expirationDate) < $this->dateTimeProvider->getDateTime();
+        return DateTimeProvider::getLastMomentOfTheMonth($this->expirationDate) < $today;
     }
 
 }
