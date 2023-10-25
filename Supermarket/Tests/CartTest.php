@@ -67,7 +67,7 @@ class CartTest extends TestCase
         $book1 = new Book('8726782638726');
         $book2 = new Book('8726782638727');
         $item1 = new Item($book1, 2);
-        $item2= new Item($book2, 3);
+        $item2 = new Item($book2, 3);
         $cart->addItem($item1);
         $cart->addItem($item2);
         $this->assertContains($item1, $cart->getItems());
@@ -80,13 +80,13 @@ class CartTest extends TestCase
         $cart = new Cart();
         $book1 = new Book('8726782638726');
         $item1 = new Item($book1, 2);
-        $item2= new Item($book1, 3);
+        $item2 = new Item($book1, 3);
         $cart->addItem($item1);
         $cart->addItem($item2);
         $this->assertContains($item1, $cart->getItems());
         $this->assertEquals(5, $item1->getQuantity());
         $this->assertNotContains($item2, $cart->getItems());
-    }    
+    }
 
     public function test_cart_can_add_1_book_twice_diff_object_and_update_quantity()
     {
@@ -94,14 +94,14 @@ class CartTest extends TestCase
         $book1 = new Book('8726782638726');
         $book2 = new Book('8726782638726');
         $item1 = new Item($book1, 6);
-        $item2= new Item($book2, 9);
+        $item2 = new Item($book2, 9);
         $cart->addItem($item1);
         $cart->addItem($item2);
         $this->assertContains($item1, $cart->getItems());
         $this->assertEquals(15, $item1->getQuantity());
         $this->assertNotContains($item2, $cart->getItems());
-    }  
- 
+    }
+
     public function test_cart_has_id()
     {
         $cart = new Cart();
@@ -120,7 +120,7 @@ class CartTest extends TestCase
             $this->assertEquals('Book not allowed', $e->getMessage());
             $this->assertNotContains($item, $cart->getItems());
         }
-    }  
+    }
 
     public function test_can_not_add_non_TusLibros_book_again()
     {
@@ -134,7 +134,29 @@ class CartTest extends TestCase
             $this->assertEquals('Book not allowed', $e->getMessage());
             $this->assertNotContains($item, $cart->getItems());
         }
-    }     
+    }
+
+    public function test_can_get_empty_total_is_0()
+    {
+        $cart = new Cart();
+        $this->assertEquals(0, $cart->getTotal());
+    }
+    public function test_can_get_total_for_one_book()
+    {
+        $cart = new Cart();
+        $book = new Book('8726782638726');
+        $item = new Item($book, 1);
+        $cart->addItem($item);
+        $this->assertEquals(5000, $cart->getTotal());
+    }
+    public function test_can_get_total_for_many_books()
+    {
+        $cart = new Cart();
+        $cart->addItem(new Item(new Book('8726782638726'), 5));
+        $cart->addItem(new Item(new Book('8726782638727'), 2));
+        $this->assertEquals(31000, $cart->getTotal());
+    }
+
 
 }
 

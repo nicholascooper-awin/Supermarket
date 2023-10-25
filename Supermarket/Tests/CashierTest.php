@@ -108,6 +108,15 @@ class CashierTest extends TestCase
         }
     }
 
+    public function test_Cashier_get_total()
+    {
+        $cart = new Cart();
+        $cashier = new Cashier(new \DateTime());
+        $cart->addItem(new Item(new Book('8726782638726'), 1));
+
+        $this->assertEquals(5000, $cashier->getTotal($cart));
+    }    
+
 
     private function makeValidCreditCard(): CreditCard
     {

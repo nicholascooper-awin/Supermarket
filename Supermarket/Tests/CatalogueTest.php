@@ -29,7 +29,14 @@ class CatalogueTest extends TestCase
         $book = new Book('11111');
         $catalogue = new Catalogue();
         $this->assertFalse($catalogue->isAllowed($book));
-    }    
+    }
+
+    public function test_get_price_of_book_in_catalogue()
+    {
+        $book = new Book('8726782638726');
+        $catalogue = new Catalogue();
+        $this->assertEquals(5000, $catalogue->getBookPrice($book));
+    }
 
 
 }

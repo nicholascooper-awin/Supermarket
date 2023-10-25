@@ -19,4 +19,9 @@ class Cashier
 
         return true;
     }
+
+    public function getTotal(Cart $cart): int
+    {
+        return $cart->getTotal();
+    }
 }

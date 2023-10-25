@@ -46,4 +46,13 @@ class Cart
     {
         return 1;
     }
+
+    public function getTotal(): int
+    {
+        $total = 0;
+        foreach ($this->items as $item) {
+            $total += $this->catalogue->getBookPrice($item->getBook()) * $item->getQuantity();
+        }
+        return $total;
+    }   
 }
