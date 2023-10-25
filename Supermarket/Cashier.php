@@ -4,6 +4,7 @@ class Cashier
 {
     public function __construct(
         private \DateTime $today,
+        private PaymentProvider $paymentProvider,
     )
     {
     }
@@ -15,6 +16,11 @@ class Cashier
         }
         if ($creditCard->isExpired($this->today)) {
             throw new \InvalidArgumentException('Credit card is expired');
+        }
+        try {
+            $this->paymentProvider->pay($creditCard, $this->getTotal($cart));
+        } catch (\UnexpectedValueException $e) {
+            throw new \UnexpectedValueException('Sorry you are poor');
         }
 
         return true;

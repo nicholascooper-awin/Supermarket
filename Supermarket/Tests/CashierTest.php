@@ -1,5 +1,6 @@
 <?php
 namespace Tests;
+use PaymentProvider;
 
 require_once('./vendor/autoload.php');
 
@@ -16,13 +17,13 @@ class CashierTest extends TestCase
 {
     public function test_can_get_Cashier()
     {
-        $cashier = new Cashier(new \DateTime());
+        $cashier = new Cashier(new \DateTime(), new PaymentProvider());
         $this->assertInstanceOf(Cashier::class, $cashier);
     }
 
     public function test_Cashier_can_not_Cashier_zero_items()
     {
-        $cashier = new Cashier(new \DateTime());
+        $cashier = new Cashier(new \DateTime(), new PaymentProvider());
 
         try {
             $cashier->checkout(new Cart(), $this->makeValidCreditCard());
@@ -37,7 +38,7 @@ class CashierTest extends TestCase
         $cart = new Cart();
         $cart->addItem(new Item(new Book('8726782638726'), 1));
 
-        $cashier = new Cashier(new \DateTime());
+        $cashier = new Cashier(new \DateTime(), new PaymentProvider());
         $this->assertTrue($cashier->checkout($cart, $this->makeValidCreditCard()));
     }
 
@@ -48,7 +49,7 @@ class CashierTest extends TestCase
         $cart->addItem(new Item(new Book('8726782638726'), 1));
         $cart->addItem(new Item(new Book('8726782638727'), 8));
 
-        $cashier = new Cashier(new \DateTime());
+        $cashier = new Cashier(new \DateTime(), new PaymentProvider());
         $this->assertTrue($cashier->checkout($cart, $this->makeValidCreditCard()));
     }
 
@@ -58,7 +59,7 @@ class CashierTest extends TestCase
         $cart = new Cart();
         $cart->addItem(new Item(new Book('8726782638726'), 1));
 
-        $cashier = new Cashier(new \DateTime());
+        $cashier = new Cashier(new \DateTime(), new PaymentProvider());
         $this->assertTrue($cashier->checkout($cart, $this->makeValidCreditCard()));
     }
 
@@ -67,11 +68,12 @@ class CashierTest extends TestCase
     {
         $cart = new Cart();
         $cart->addItem(new Item(new Book('8726782638726'), 1));
-        $cashier = new Cashier(new \DateTime());
+        $cashier = new Cashier(new \DateTime(), new PaymentProvider());
 
         try {
             $cashier->checkout($cart, $this->makeInvalidCreditCard());
-            $this->fail('Expected exception not thrown');;
+            $this->fail('Expected exception not thrown');
+            ;
         } catch (\InvalidArgumentException $e) {
             $this->assertEquals('Credit card is expired', $e->getMessage());
         }
@@ -82,7 +84,7 @@ class CashierTest extends TestCase
         $futureDate = new \DateTime('2023-10-31 23:59:59');
 
         $cart = new Cart();
-        $cashier = new Cashier($futureDate);
+        $cashier = new Cashier($futureDate, new PaymentProvider());
         $cart->addItem(new Item(new Book('8726782638726'), 1));
 
         $creditcard = new CreditCard($futureDate->format('mY'));
@@ -95,7 +97,7 @@ class CashierTest extends TestCase
         $expiredDate = new \DateTime('2023-10-31 23:59:59');
 
         $cart = new Cart();
-        $cashier = new Cashier($futureDate);
+        $cashier = new Cashier($futureDate, new PaymentProvider());
         $cart->addItem(new Item(new Book('8726782638726'), 1));
 
         $creditcard = new CreditCard($expiredDate->format('mY'));
@@ -111,11 +113,31 @@ class CashierTest extends TestCase
     public function test_Cashier_get_total()
     {
         $cart = new Cart();
-        $cashier = new Cashier(new \DateTime());
+        $cashier = new Cashier(new \DateTime(), new PaymentProvider());
         $cart->addItem(new Item(new Book('8726782638726'), 1));
 
         $this->assertEquals(5000, $cashier->getTotal($cart));
-    }    
+    }
+
+    public function test_Cashier_rejects_creditcard_no_funds()
+    {
+        $cart = new Cart();
+        $cart->addItem(new Item(new Book('8726782638726'), 1));
+
+        $paymentProvider = $this->createMock(PaymentProvider::class);
+
+        $paymentProvider
+            ->method('pay')
+            ->willThrowException(new \UnexpectedValueException('No funds'));
+
+        $cashier = new Cashier(new \DateTime(), $paymentProvider);
+        try {
+            $cashier->checkout($cart, $this->makeValidCreditCard());
+            $this->fail('Expected exception not thrown');
+        } catch (\UnexpectedValueException $e) {
+            $this->assertEquals('Sorry you are poor', $e->getMessage());
+        }
+    }
 
 
     private function makeValidCreditCard(): CreditCard
