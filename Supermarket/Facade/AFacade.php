@@ -8,11 +8,12 @@ use Repo\CartRepo;
 use Model\CreditCard;
 use Model\Cashier;
 use Model\PaymentProvider;
+use Model\SalesBook;
 
 class AFacade
 {
 
-    public function __construct(private CartRepo $cartRepo)
+    public function __construct(private CartRepo $cartRepo, private SalesBook $salesBook)
     {
     }
 

@@ -6,14 +6,16 @@ require_once('./vendor/autoload.php');
 use PHPUnit\Framework\TestCase;
 use Facade\AFacade;
 use Repo\CartRepo;
-use Model\CreditCard;
+use Model\SalesBook;
 
 class AFacadeTest extends TestCase
 {
     private CartRepo $cartRepo;
+    private SalesBook $salesBook;
     public function setUp(): void
     {
         $this->cartRepo = new CartRepo();
+        $this->salesBook = new SalesBook(); 
         parent::setUp();
     }
 
@@ -86,6 +88,7 @@ class AFacadeTest extends TestCase
         $facade->addToCart($cartId, '8726782638726', 1);
         $facade->addToCart($cartId, '8726782638727', 8);
         $this->assertTrue($facade->checkoutCart($cartId, $this->makeValidCreditCardMonthYear()));
+        //todo salesbook
     }
 
     public function test_cannot_checkout_cart()
@@ -99,12 +102,13 @@ class AFacadeTest extends TestCase
             $this->fail('Should have thrown an exception');
         } catch (\InvalidArgumentException $exception) {
             $this->assertEquals('Credit card is expired', $exception->getMessage());
-        }
+        //todo salesbook
+    }
     }    
 
     private function getAFacade(): AFacade
     {
-        return new AFacade($this->cartRepo);
+        return new AFacade($this->cartRepo, $this->salesBook);
     }
 
     private function makeValidCreditCardMonthYear(): string
