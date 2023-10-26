@@ -3,6 +3,8 @@ namespace Model;
 
 class Cart
 {
+    private int $id;
+
     private array $items = [];
 
     private Catalogue $catalogue;
@@ -44,11 +46,6 @@ class Cart
         return null;
     }
 
-    public function getId(): int
-    {
-        return 1;
-    }
-
     public function getTotal(): int
     {
         $total = 0;
@@ -56,5 +53,15 @@ class Cart
             $total += $this->catalogue->getBookPrice($item->getBook()) * $item->getQuantity();
         }
         return $total;
+    }   
+
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
     }   
 }

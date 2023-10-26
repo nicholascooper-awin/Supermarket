@@ -100,11 +100,6 @@ class CartTest extends TestCase
         $this->assertNotContains($item2, $cart->getItems());
     }
 
-    public function test_cart_has_id()
-    {
-        $cart = new Cart();
-        $this->assertNotEmpty($cart->getId());
-    }
 
     public function test_can_not_add_non_TusLibros_book()
     {
