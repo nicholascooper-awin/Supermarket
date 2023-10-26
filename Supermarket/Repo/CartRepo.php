@@ -5,18 +5,18 @@ use Model\Cart;
 
 class CartRepo
 {
-    private ?Cart $cart = null;
+    private array $carts = [];
 
     public function createCart(): Cart
     {
-        $this->cart = new Cart();
         $id = 1;
-        $this->cart->setId($id);
-        return $this->cart;
+        $this->carts[$id] = new Cart();
+        $this->carts[$id]->setId($id);
+        return $this->carts[$id];
     }
 
     public function findCart(int $id): Cart
     {
-        return $this->cart;
+        return $this->carts[$id];
     }
 }
