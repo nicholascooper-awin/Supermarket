@@ -4,8 +4,8 @@ namespace Tests;
 require_once('./vendor/autoload.php');
 
 use PHPUnit\Framework\TestCase;
-use Book;
-use Item;
+use Model\Book;
+use Model\Item;
 
 
 class ItemTest extends TestCase

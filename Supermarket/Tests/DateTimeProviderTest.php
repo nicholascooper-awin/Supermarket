@@ -4,7 +4,7 @@ namespace Tests;
 require_once('./vendor/autoload.php');
 
 use PHPUnit\Framework\TestCase;
-use DateTimeProvider;
+use Model\DateTimeProvider;
 
 class DateTimeProviderTest extends TestCase
 {

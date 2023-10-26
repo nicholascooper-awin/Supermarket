@@ -4,8 +4,8 @@ namespace Tests;
 require_once('./vendor/autoload.php');
 
 use PHPUnit\Framework\TestCase;
-use PaymentProvider;
-use CreditCard;
+use Model\PaymentProvider;
+use Model\CreditCard;
 
 class PaymentProviderTest extends TestCase
 {

@@ -1,4 +1,6 @@
 <?php
+namespace Model;
+
 class CreditCard
 {
     public function __construct(

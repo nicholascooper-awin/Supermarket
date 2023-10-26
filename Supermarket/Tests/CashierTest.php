@@ -1,17 +1,15 @@
 <?php
 namespace Tests;
-use PaymentProvider;
 
 require_once('./vendor/autoload.php');
 
 use PHPUnit\Framework\TestCase;
-use Cashier;
-use Cart;
-use Item;
-use Book;
-use CreditCard;
-use DateTimeProvider;
-use DateTimeProviderInterface;
+use Model\Cashier;
+use Model\Cart;
+use Model\Item;
+use Model\Book;
+use Model\CreditCard;
+use Model\PaymentProvider;
 
 class CashierTest extends TestCase
 {

@@ -4,11 +4,9 @@ namespace Tests;
 require_once('./vendor/autoload.php');
 
 use PHPUnit\Framework\TestCase;
-use Cart;
-use Book;
-use Item;
-use Catalogue;
-
+use Model\Cart;
+use Model\Book;
+use Model\Item;
 
 class CartTest extends TestCase
 {
