@@ -5,8 +5,8 @@ require_once('./vendor/autoload.php');
 
 use PHPUnit\Framework\TestCase;
 use Facade\AFacade;
-use Model\Cart;
 use Repo\CartRepo;
+use Model\CreditCard;
 
 class AFacadeTest extends TestCase
 {
@@ -27,27 +27,98 @@ class AFacadeTest extends TestCase
     public function test_can_create_cart()
     {
         $facade = $this->getAFacade();
-        $cartId = $facade->createCart();
+        $cartId = $facade->createCart('clientId', 'password');
 
+        $list = $facade->listCart($cartId);
+        $this->assertEquals([], $list);
+    }
 
-        $cart = $this->cartRepo->findCart($cartId);
-        $this->assertTrue($cart->isEmpty());
+    public function test_cannot_create_cart_bad_client()
+    {
+        $facade = $this->getAFacade();
+
+        try {
+            $facade->createCart('clientId', 'not_password');
+            $this->fail('Should have thrown an exception');
+        } catch (\InvalidArgumentException $exception) {
+            $this->assertEquals('Bad client credentials', $exception->getMessage());
+        }
     }
 
     public function test_can_add_to_cart()
     {
         $facade = $this->getAFacade();
-        $cartId = $facade->createCart();
+        $cartId = $facade->createCart('clientId', 'password');
         $this->assertTrue($facade->addToCart($cartId, '8726782638726', 1));
 
-        $cart = $this->cartRepo->findCart($cartId);
-        $this->assertFalse($cart->isEmpty());
+        $list = $facade->listCart($cartId);
+        $this->assertNotEmpty($list);
     }
+
+
+    public function test_can_list_cart_one()
+    {
+        $facade = $this->getAFacade();
+        $cartId = $facade->createCart('clientId', 'password');
+        $facade->addToCart($cartId, '8726782638726', 1);
+        $list = $facade->listCart($cartId);
+
+        $this->assertContains(['8726782638726' => 1], $list);
+    }
+
+
+    public function test_can_list_cart_many()
+    {
+        $facade = $this->getAFacade();
+        $cartId = $facade->createCart('clientId', 'password');
+        $facade->addToCart($cartId, '8726782638726', 1);
+        $facade->addToCart($cartId, '8726782638727', 8);
+        $list = $facade->listCart($cartId);
+
+        $this->assertContains(['8726782638726' => 1], $list);
+        $this->assertContains(['8726782638727' => 8], $list);
+    }
+
+    public function test_can_checkout_cart()
+    {
+        $facade = $this->getAFacade();
+        $cartId = $facade->createCart('clientId', 'password');
+        $facade->addToCart($cartId, '8726782638726', 1);
+        $facade->addToCart($cartId, '8726782638727', 8);
+        $this->assertTrue($facade->checkoutCart($cartId, $this->makeValidCreditCardMonthYear()));
+    }
+
+    public function test_cannot_checkout_cart()
+    {
+        $facade = $this->getAFacade();
+        $cartId = $facade->createCart('clientId', 'password');
+        $facade->addToCart($cartId, '8726782638726', 1);
+        $facade->addToCart($cartId, '8726782638727', 8);
+        try {
+            $facade->checkoutCart($cartId, $this->makeInvalidCreditCardMonthYear());
+            $this->fail('Should have thrown an exception');
+        } catch (\InvalidArgumentException $exception) {
+            $this->assertEquals('Credit card is expired', $exception->getMessage());
+        }
+    }    
 
     private function getAFacade(): AFacade
     {
         return new AFacade($this->cartRepo);
     }
 
+    private function makeValidCreditCardMonthYear(): string
+    {
+        $dateTime = new \DateTime();
+        $dateTime->modify('+1 year');
+        return $dateTime->format('mY');
+    }
+
+    private function makeInvalidCreditCardMonthYear(): string
+    {
+        $dateTime = new \DateTime();
+        $dateTime->modify('-1 year');
+        return $dateTime->format('mY');
+    }    
 }
 
