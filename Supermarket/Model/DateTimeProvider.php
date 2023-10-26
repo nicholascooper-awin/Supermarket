@@ -3,6 +3,10 @@ namespace Model;
 
 class DateTimeProvider
 {
+    public static function getNow(): \DateTime
+    {
+        return new \DateTime();
+    }
 
     public static function getLastMomentOfTheMonth(string $monthYear): \DateTime
     {

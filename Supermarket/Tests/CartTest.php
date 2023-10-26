@@ -7,32 +7,33 @@ use PHPUnit\Framework\TestCase;
 use Model\Cart;
 use Model\Book;
 use Model\Item;
+use Model\DateTimeProvider;
 
 class CartTest extends TestCase
 {
     public function test_can_get_cart()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $this->assertInstanceOf(Cart::class, $cart);
     }
 
     public function test_cart_is_created_empty()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $this->assertTrue($cart->isEmpty());
     }
 
 
     public function test_cart_can_list_items()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $this->assertIsList($cart->getItems());
     }
 
 
     public function test_cart_is_not_empty()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $book = new Book('8726782638726');
         $item = new Item($book, 1);
         $cart->addItem($item);
@@ -41,7 +42,7 @@ class CartTest extends TestCase
 
     public function test_cart_can_add_item_and_list_items()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $book = new Book('8726782638726');
         $item = new Item($book, 1);
         $cart->addItem($item);
@@ -51,7 +52,7 @@ class CartTest extends TestCase
 
     public function test_cart_can_add_book_with_quanity_2_and_list_items()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $book = new Book('8726782638726');
         $item = new Item($book, 2);
         $cart->addItem($item);
@@ -61,7 +62,7 @@ class CartTest extends TestCase
 
     public function test_cart_can_add_2_book_and_list_items()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $book1 = new Book('8726782638726');
         $book2 = new Book('8726782638727');
         $item1 = new Item($book1, 2);
@@ -75,7 +76,7 @@ class CartTest extends TestCase
 
     public function test_cart_can_add_1_book_twice_same_object_and_update_quantity()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $book1 = new Book('8726782638726');
         $item1 = new Item($book1, 2);
         $item2 = new Item($book1, 3);
@@ -88,7 +89,7 @@ class CartTest extends TestCase
 
     public function test_cart_can_add_1_book_twice_diff_object_and_update_quantity()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $book1 = new Book('8726782638726');
         $book2 = new Book('8726782638726');
         $item1 = new Item($book1, 6);
@@ -103,7 +104,7 @@ class CartTest extends TestCase
 
     public function test_can_not_add_non_TusLibros_book()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $book = new Book('11111');
         $item = new Item($book, 1);
         try {
@@ -117,7 +118,7 @@ class CartTest extends TestCase
 
     public function test_can_not_add_non_TusLibros_book_again()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $book = new Book('22222');
         $item = new Item($book, 1);
         try {
@@ -131,12 +132,12 @@ class CartTest extends TestCase
 
     public function test_can_get_empty_total_is_0()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $this->assertEquals(0, $cart->getTotal());
     }
     public function test_can_get_total_for_one_book()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $book = new Book('8726782638726');
         $item = new Item($book, 1);
         $cart->addItem($item);
@@ -144,12 +145,53 @@ class CartTest extends TestCase
     }
     public function test_can_get_total_for_many_books()
     {
-        $cart = new Cart();
+        $cart = $this->getCart();
         $cart->addItem(new Item(new Book('8726782638726'), 5));
         $cart->addItem(new Item(new Book('8726782638727'), 2));
         $this->assertEquals(31000, $cart->getTotal());
     }
 
+    public function test_cart_has_not_expired()
+    {
+        $cart = $this->getCart();
+        $this->assertFalse($cart->hasExpired(new \DateTime()));
+    }
+    public function test_cart_has_expired()
+    {
+        $dateTimeProvider = new DateTimeProvider();
+        $now = $dateTimeProvider->getNow();
+        $cart = new Cart($dateTimeProvider);
+        $futureDateTime = clone $now;
+        $futureDateTime->modify('+30 minutes +1 second');
+        $this->assertTrue($cart->hasExpired($futureDateTime));
+    }
+
+    public function test_cart_has_not_expired_with_a_second_left()
+    {
+        $dateTimeProvider = new DateTimeProvider();
+        $now = $dateTimeProvider->getNow();
+        $cart = new Cart($dateTimeProvider);
+        $futureDateTime = clone $now;
+        $futureDateTime->modify('+30 minutes -1 second');
+        $this->assertFalse($cart->hasExpired($futureDateTime));
+    } 
+
+    public function test_cart_has_expired_after_last_item()
+    {
+        $dateTimeProvider = new DateTimeProvider();
+        $now = $dateTimeProvider->getNow();
+        $cart = new Cart($dateTimeProvider);
+        $cart->addItem(new Item(new Book('8726782638726'), 1));
+        $cart->addItem(new Item(new Book('8726782638726'), 1));
+        $futureDateTime = clone $now;
+        $futureDateTime->modify('+30 minutes +1 second');
+        $this->assertTrue($cart->hasExpired($futureDateTime));
+    }    
+    
+    private function getCart(): Cart
+    {
+        return new Cart(new DateTimeProvider());
+    }
 
 }
 

@@ -2,6 +2,8 @@
 namespace Repo;
 
 use Model\Cart;
+use Model\DateTimeProvider;
+
 
 class CartRepo
 {
@@ -10,7 +12,7 @@ class CartRepo
     public function createCart(): Cart
     {
         $id = 1;
-        $this->carts[$id] = new Cart();
+        $this->carts[$id] = new Cart(new DateTimeProvider());
         $this->carts[$id]->setId($id);
         return $this->carts[$id];
     }

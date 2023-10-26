@@ -9,9 +9,24 @@ class Cart
 
     private Catalogue $catalogue;
 
-    public function __construct()
+    private \DateTime $expiredAtDateTime;
+
+    public function __construct(
+        private DateTimeProvider $dateTimeProvider
+        )
     {
+        $this->updateExpiredDateTime();
         $this->catalogue = new Catalogue();
+    }
+
+    private function updateExpiredDateTime(): void
+    {
+        $this->expiredAtDateTime = $this->dateTimeProvider->getNow()->modify('+30 minutes');
+    }
+
+    public function hasExpired(\DateTime $dateTime): bool
+    {
+        return $this->expiredAtDateTime < $dateTime;
     }
 
     public function isEmpty(): bool
@@ -34,6 +49,7 @@ class Cart
             return;
         }
         $this->items[] = $item;
+        $this->updateExpiredDateTime();
     }
 
     private function findItemByBook(Book $book): ?Item
@@ -53,7 +69,7 @@ class Cart
             $total += $this->catalogue->getBookPrice($item->getBook()) * $item->getQuantity();
         }
         return $total;
-    }   
+    }
 
     public function setId(int $id): void
     {
@@ -63,5 +79,6 @@ class Cart
     public function getId(): int
     {
         return $this->id;
-    }   
+    }
+
 }

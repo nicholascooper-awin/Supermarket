@@ -48,7 +48,11 @@ class AFacade
         $cart = $this->cartRepo->findCart($cartId);
 
         $cashier = new Cashier(new \DateTime(), new PaymentProvider());
-        return $cashier->checkout($cart, new CreditCard($creditCardMonthYear));
+        $cashier->checkout($cart, new CreditCard($creditCardMonthYear));
+        foreach($cart->getItems() as $item) {
+            $this->salesBook->add($item);
+        }
+        return true;
     }
 
 }

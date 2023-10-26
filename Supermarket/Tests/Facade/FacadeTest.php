@@ -15,7 +15,7 @@ class AFacadeTest extends TestCase
     public function setUp(): void
     {
         $this->cartRepo = new CartRepo();
-        $this->salesBook = new SalesBook(); 
+        $this->salesBook = new SalesBook();
         parent::setUp();
     }
 
@@ -88,7 +88,8 @@ class AFacadeTest extends TestCase
         $facade->addToCart($cartId, '8726782638726', 1);
         $facade->addToCart($cartId, '8726782638727', 8);
         $this->assertTrue($facade->checkoutCart($cartId, $this->makeValidCreditCardMonthYear()));
-        //todo salesbook
+        $this->assertContains(['isbn' => '8726782638726', 'quantity' => 1], $this->salesBook->list());
+        $this->assertContains(['isbn' => '8726782638727', 'quantity' => 8], $this->salesBook->list());
     }
 
     public function test_cannot_checkout_cart()
@@ -102,9 +103,20 @@ class AFacadeTest extends TestCase
             $this->fail('Should have thrown an exception');
         } catch (\InvalidArgumentException $exception) {
             $this->assertEquals('Credit card is expired', $exception->getMessage());
-        //todo salesbook
+            $this->assertEmpty($this->salesBook->list());
+        }
     }
-    }    
+
+
+    // public function test_cannot_add_to_cart_after_30_minutes()
+    // {
+    //     $facade = $this->getAFacade();
+    //     $cartId = $facade->createCart('clientId', 'password');
+    //     $this->assertTrue($facade->addToCart($cartId, '8726782638726', 1));
+
+    //     $list = $facade->listCart($cartId);
+    //     $this->assertNotEmpty($list);
+    // }
 
     private function getAFacade(): AFacade
     {
@@ -123,6 +135,6 @@ class AFacadeTest extends TestCase
         $dateTime = new \DateTime();
         $dateTime->modify('-1 year');
         return $dateTime->format('mY');
-    }    
+    }
 }
 
